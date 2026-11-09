@@ -1,0 +1,6 @@
+# Pour les hébergeurs où la racine web ne peut pas pointer sur public/ :
+# toute requête est envoyée dans public/, donc src/, data/, sql/, .git et config.php restent inaccessibles.
+Options -Indexes
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !/public/
+RewriteRule ^(.*)$ public/$1 [L]
