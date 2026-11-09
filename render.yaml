@@ -1,0 +1,28 @@
+databases:
+  - name: quadrille-db
+    plan: free
+    region: frankfurt
+    ipAllowList: []   # Base joignable uniquement depuis les services Render.
+
+services:
+  - type: web
+    name: quadrille
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quadrille-db
+          property: connectionString
+      - key: SECRET
+        generateValue: true
+      - key: MAIL_MODE
+        value: brevo
+      - key: XFF_HOPS
+        value: "0"
+      # Renseignées à la main dans Render : elles ne doivent pas figurer dans le dépôt.
+      - key: MAIL_FROM
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
