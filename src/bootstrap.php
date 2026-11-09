@@ -17,19 +17,25 @@ set_exception_handler(function (Throwable $e): void {
     echo "Une erreur est survenue. Merci de réessayer plus tard.";
 });
 
-if (!is_file(RACINE . '/config.php')) {
-    throw new RuntimeException('config.php manquant : copier config.example.php.');
-}
-
+/** Lit config.php en local ; sur l'hébergeur, tout vient des variables d'environnement. */
 function conf(string $cle): string
 {
     static $config = null;
-    $config ??= require RACINE . '/config.php';
-    return (string) $config[$cle];
+    $config ??= is_file(RACINE . '/config.php') ? require RACINE . '/config.php' : [
+        'app_name'      => 'Quadrille',
+        'app_url'       => getenv('APP_URL') ?: getenv('RENDER_EXTERNAL_URL'),
+        'database_url'  => getenv('DATABASE_URL'),
+        'mail_mode'     => getenv('MAIL_MODE'),
+        'mail_from'     => getenv('MAIL_FROM'),
+        'brevo_api_key' => getenv('BREVO_API_KEY'),
+        'secret'        => getenv('SECRET'),
+        'xff_hops'      => getenv('XFF_HOPS'),
+    ];
+    return (string) ($config[$cle] ?? '');
 }
 
 if (strlen(conf('secret')) < 32) {
-    throw new RuntimeException('Le secret de config.php doit être généré (32 caractères minimum).');
+    throw new RuntimeException('Le secret doit être généré (32 caractères minimum).');
 }
 
 $enHttps = str_starts_with(conf('app_url'), 'https://');
@@ -66,11 +72,25 @@ function db(): PDO
     if ($pdo !== null) {
         return $pdo;
     }
-    $pdo = new PDO('sqlite:' . conf('db_path'), null, null, [
+    $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_TIMEOUT            => 5,
-    ]);
+    ];
+
+    // En ligne : PostgreSQL, car le disque de l'hébergeur est effacé à chaque redémarrage.
+    if (conf('database_url') !== '') {
+        $url = parse_url(conf('database_url'));
+        $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $url['host'], $url['port'] ?? 5432, ltrim($url['path'], '/'));
+        $pdo = new PDO($dsn, rawurldecode($url['user']), rawurldecode($url['pass']), $options);
+        if ($pdo->query("SELECT to_regclass('public.users')")->fetchColumn() === null) {
+            $pdo->exec((string) file_get_contents(RACINE . '/sql/schema.pgsql.sql'));
+        }
+        return $pdo;
+    }
+
+    // En local : SQLite, sans aucune installation.
+    $pdo = new PDO('sqlite:' . conf('db_path'), null, null, $options);
     $pdo->exec('PRAGMA foreign_keys = ON');
     if ((int) $pdo->query('PRAGMA user_version')->fetchColumn() === 0) {
         $pdo->exec((string) file_get_contents(RACINE . '/sql/schema.sql'));

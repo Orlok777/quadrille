@@ -99,7 +99,16 @@ function compter_essai(array $regles): void
 
 function ip_client(): string
 {
-    // Volontairement pas X-Forwarded-For : cet en-tête est falsifiable par le client.
+    // Derrière un proxy, REMOTE_ADDR est l'adresse du proxy. Le client peut écrire ce qu'il veut au
+    // début de X-Forwarded-For : on compte donc depuis la fin, le nombre de proxys de confiance.
+    $sauts = (int) conf('xff_hops');
+    if ($sauts > 0 && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $chaine = array_map('trim', explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+        $ip = $chaine[count($chaine) - $sauts] ?? '';
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
     return (string) ($_SERVER['REMOTE_ADDR'] ?? 'inconnue');
 }
 
@@ -192,7 +201,7 @@ function creer_compte(string $pseudo, string $email, string $mdp, string $confir
     try {
         $q->execute([$pseudo, $email, password_hash($mdp, algo_hachage()), time()]);
     } catch (PDOException $e) {
-        if ($e->getCode() === '23000') {
+        if (str_starts_with((string) $e->getCode(), '23')) {    // Violation d'unicité (SQLite et PostgreSQL).
             // Message commun au pseudo et à l'e-mail, pour ne pas confirmer quelle adresse est inscrite.
             return "Ce pseudo ou cette adresse n'est pas disponible.";
         }
@@ -219,8 +228,8 @@ function connecter(string $identifiant, string $mdp): ?string
         return MSG_TROP_ESSAIS;
     }
 
-    $q = db()->prepare('SELECT * FROM users WHERE pseudo = :i OR email = :i');
-    $q->execute(['i' => $identifiant]);
+    $q = db()->prepare('SELECT * FROM users WHERE lower(pseudo) = ? OR email = ?');
+    $q->execute([$identifiant, $identifiant]);
     $utilisateur = $q->fetch();
 
     $borne = substr($mdp, 0, MDP_MAX_OCTETS);

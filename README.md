@@ -1,7 +1,7 @@
 # Quadrille
 
 Portail de compte d'un jeu de lettres en ligne (préparation SAE S3, R3.01).
-PHP 8.2, SQLite, sans dépendance ni JavaScript.
+PHP 8.2, sans dépendance ni JavaScript. SQLite en local, PostgreSQL en ligne.
 
 ## Lancer en local
 
@@ -14,12 +14,10 @@ En local (`mail_mode` = `log`), les e-mails sont écrits dans `data/mails.log`.
 
 ## Mettre en ligne
 
-1. Déposer le projet sur un hébergement PHP avec `pdo_sqlite` (par exemple via `git clone`).
-2. Pointer la racine web sur `public/`. Si c'est impossible, laisser la racine du projet : le `.htaccess` redirige tout vers `public/`.
-3. Créer `config.php` sur le serveur, avec `app_url` en `https://`, `mail_mode` à `mail`, `mail_from` et un `secret` généré :
-   `php -r "echo bin2hex(random_bytes(32));"`
-4. Forcer HTTPS dans les réglages de l'hébergeur.
-5. Vérifier que `data/` est accessible en écriture par PHP, et que `/data/quadrille.sqlite` répond 403 ou 404.
+Sur Render : New > Blueprint, puis choisir ce dépôt. `render.yaml` crée le site et la base PostgreSQL.
+Seules `MAIL_FROM` (expéditeur validé chez Brevo) et `BREVO_API_KEY` sont à saisir.
+
+`XFF_HOPS` indique combien d'adresses lire depuis la fin de `X-Forwarded-For` pour trouver l'IP réelle du client. Une mauvaise valeur rend la limitation de débit inefficace.
 
 ## Sécurité en place
 
