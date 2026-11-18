@@ -17,7 +17,7 @@ En local (`mail_mode` = `log`), les e-mails sont écrits dans `data/mails.log`.
 Sur Render : New > Blueprint, puis choisir ce dépôt. `render.yaml` crée le site et la base PostgreSQL.
 Seules `MAIL_FROM` (expéditeur validé chez Brevo) et `BREVO_API_KEY` sont à saisir.
 
-`XFF_HOPS` indique combien d'adresses lire depuis la fin de `X-Forwarded-For` pour trouver l'IP réelle du client. Une mauvaise valeur rend la limitation de débit inefficace.
+`XFF_HOPS` indique combien d'adresses lire depuis la fin de `X-Forwarded-For` pour trouver l'IP réelle du client. Une mauvaise valeur rend la limitation de débit inefficace. Sur Render, la chaîne est « IP réelle, Cloudflare, proxy interne » : la valeur est donc 3.
 
 ## Sécurité en place
 

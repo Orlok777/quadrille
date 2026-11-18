@@ -20,7 +20,7 @@ services:
       - key: MAIL_MODE
         value: brevo
       - key: XFF_HOPS
-        value: "0"
+        value: "3"   # IP réelle, puis Cloudflare, puis le proxy interne de Render (vérifié le 18/11/2026)
       # Renseignées à la main dans Render : elles ne doivent pas figurer dans le dépôt.
       - key: MAIL_FROM
         sync: false
