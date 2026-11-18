@@ -22,12 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($vue === 'connexion') {
         $erreur = connecter(champ('identifiant'), champ('mot_de_passe'));
         if ($erreur === null) {
-            rediriger('parties.php');
+            rediriger(isset($_SESSION['mfa_attente']) ? 'double-auth.php' : 'parties.php');
         }
     } elseif ($vue === 'inscription') {
         $erreur = creer_compte(trim(champ('pseudo')), trim(champ('email')), champ('mot_de_passe'), champ('confirmation'));
         if ($erreur === null) {
-            rediriger('parties.php');
+            flash(MSG_INSCRIPTION);
+            rediriger('index.php');
         }
     } else {
         demander_reinitialisation(champ('email'));
@@ -94,6 +95,7 @@ page_debut($titres[$vue], 'accueil');
                     <input id="confirmation" name="confirmation" type="password" autocomplete="new-password" required minlength="<?= MDP_MIN ?>">
                     <button type="submit">Créer mon compte</button>
                 </form>
+                <p class="annexe petit">Nous ne gardons que le nécessaire au jeu : voir la <a href="confidentialite.php">politique de confidentialité</a>.</p>
 
             <?php else: ?>
                 <h2>Mot de passe oublié</h2>

@@ -21,16 +21,7 @@ $nouvelle = isset($_GET['nouvelle']);
 
 page_debut('Mes parties', 'interieur');
 ?>
-<header class="barre">
-    <?php logo(); ?>
-    <div class="barre-compte">
-        <span>Bonjour, <b><?= e($utilisateur['pseudo']) ?></b></span>
-        <form method="post" action="deconnexion.php">
-            <?php champ_csrf(); ?>
-            <button type="submit" class="discret">Se déconnecter</button>
-        </form>
-    </div>
-</header>
+<?php barre($utilisateur, 'parties.php'); ?>
 
 <main class="contenu">
     <div class="titre-ligne">

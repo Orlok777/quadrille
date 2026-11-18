@@ -30,6 +30,7 @@ function conf(string $cle): string
         'brevo_api_key' => getenv('BREVO_API_KEY'),
         'secret'        => getenv('SECRET'),
         'xff_hops'      => getenv('XFF_HOPS'),
+        'contact_email' => getenv('CONTACT_EMAIL'),
     ];
     return (string) ($config[$cle] ?? '');
 }
@@ -83,22 +84,18 @@ function db(): PDO
         $url = parse_url(conf('database_url'));
         $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $url['host'], $url['port'] ?? 5432, ltrim($url['path'], '/'));
         $pdo = new PDO($dsn, rawurldecode($url['user']), rawurldecode($url['pass']), $options);
-        if ($pdo->query("SELECT to_regclass('public.users')")->fetchColumn() === null) {
-            $pdo->exec((string) file_get_contents(RACINE . '/sql/schema.pgsql.sql'));
-        }
-        return $pdo;
+    } else {
+        // En local : SQLite, sans aucune installation.
+        $pdo = new PDO('sqlite:' . conf('db_path'), null, null, $options);
+        $pdo->exec('PRAGMA foreign_keys = ON');
     }
-
-    // En local : SQLite, sans aucune installation.
-    $pdo = new PDO('sqlite:' . conf('db_path'), null, null, $options);
-    $pdo->exec('PRAGMA foreign_keys = ON');
-    if ((int) $pdo->query('PRAGMA user_version')->fetchColumn() === 0) {
-        $pdo->exec((string) file_get_contents(RACINE . '/sql/schema.sql'));
-        $pdo->exec('PRAGMA user_version = 1');
-    }
+    migrer($pdo);
     return $pdo;
 }
 
+require __DIR__ . '/schema.php';
+require __DIR__ . '/securite.php';
 require __DIR__ . '/auth.php';
+require __DIR__ . '/compte.php';
 require __DIR__ . '/mail.php';
 require __DIR__ . '/vues.php';

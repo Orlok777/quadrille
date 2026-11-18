@@ -21,7 +21,31 @@ function page_debut(string $titre, string $classe): void
 
 function page_fin(): void
 {
-    echo "</body>\n</html>\n";
+    echo '<footer class="pied"><a href="confidentialite.php">Confidentialité et données personnelles</a></footer>';
+    echo "\n</body>\n</html>\n";
+}
+
+/** Bandeau des pages réservées aux membres. */
+function barre(array $utilisateur, string $active): void
+{
+    $liens = ['parties.php' => 'Mes parties', 'compte.php' => 'Mon compte'];
+    ?>
+<header class="barre">
+    <?php logo(); ?>
+    <nav class="barre-liens" aria-label="Navigation principale">
+        <?php foreach ($liens as $url => $libelle): ?>
+            <a href="<?= $url ?>"<?= $active === $url ? ' aria-current="page"' : '' ?>><?= $libelle ?></a>
+        <?php endforeach; ?>
+    </nav>
+    <div class="barre-compte">
+        <span><b><?= e($utilisateur['pseudo']) ?></b></span>
+        <form method="post" action="deconnexion.php">
+            <?php champ_csrf(); ?>
+            <button type="submit" class="discret">Se déconnecter</button>
+        </form>
+    </div>
+</header>
+    <?php
 }
 
 function logo(): void

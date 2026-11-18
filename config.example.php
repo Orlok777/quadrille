@@ -15,6 +15,9 @@ return [
     'mail_mode' => 'log',
     'mail_from' => 'no-reply@example.org',
 
+    // Adresse affichée sur la page de confidentialité pour exercer ses droits (facultatif).
+    'contact_email' => '',
+
     // Générer avec : php -r "echo bin2hex(random_bytes(32));"
     'secret'    => 'A_REMPLACER',
 ];
