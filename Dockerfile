@@ -1,3 +1,12 @@
+# Étape 1 : compilation du moteur de jeu en C (module L1). Même base Debian que l'image PHP.
+FROM debian:bookworm-slim AS moteur
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libc6-dev make \
+    && rm -rf /var/lib/apt/lists/*
+COPY moteur /moteur
+RUN make -C /moteur clean all
+
+# Étape 2 : site PHP. Seuls les exécutables du moteur sont repris, pas le compilateur.
 FROM php:8.2-apache
 
 RUN apt-get update \
@@ -16,6 +25,7 @@ RUN sed -i 's/^Listen 80$/Listen 10000/' /etc/apache2/ports.conf \
     && printf 'ServerTokens Prod\nServerSignature Off\n' > /etc/apache2/conf-enabled/zz-securite.conf
 
 COPY . /var/www/html/
+COPY --from=moteur /moteur/bin /var/www/html/moteur/bin
 RUN chown -R www-data:www-data /var/www/html/data
 
 EXPOSE 10000

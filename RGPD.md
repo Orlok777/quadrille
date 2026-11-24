@@ -5,6 +5,7 @@ Projet pédagogique du BUT Informatique, Université Gustave Eiffel.
 | Traitement | Données | Finalité | Base légale | Durée de conservation | Destinataires |
 |---|---|---|---|---|---|
 | Comptes joueurs | Pseudo, e-mail, empreinte du mot de passe, dates de création, de confirmation et de dernière connexion | Fournir le jeu et l'accès au compte | Exécution du service | Jusqu'à la suppression du compte, ou 3 ans sans connexion. Compte non confirmé : 24 h | Hébergeur (Render, Francfort) |
+| Historique des parties | Pseudo, identifiant du compte, grille, mots trouvés, score, dates | Déroulement et historique des parties | Exécution du service | Tant que la partie existe. À la suppression d'un compte, le joueur est anonymisé dans les parties des autres (trigger `anonymiser_joueur`) | Hébergeur, autres joueurs de la partie |
 | Double authentification | Clé TOTP chiffrée, codes de secours hachés | Protéger le compte | Exécution du service, à la demande du joueur | Jusqu'à la désactivation ou la suppression du compte | Hébergeur |
 | E-mails du service | Adresse e-mail, contenu du message | Confirmation d'adresse, réinitialisation, alertes de sécurité | Exécution du service | Selon Brevo (journal d'envoi) | Brevo (France) |
 | Limitation des tentatives | Empreinte HMAC de l'IP et de l'identifiant | Bloquer les attaques par force brute | Intérêt légitime (sécurité) | 24 h | Hébergeur |

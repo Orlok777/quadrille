@@ -1,14 +1,23 @@
 # Quadrille
 
-Portail de compte d'un jeu de lettres en ligne (préparation SAE S3, R3.01).
-PHP 8.2, sans dépendance ni JavaScript. SQLite en local, PostgreSQL en ligne.
+Plate-forme de Boggle en ligne (SAE S3). PHP 8.2 sans dépendance ni JavaScript, base PostgreSQL,
+moteur de jeu en C ([moteur/](moteur/README.md)).
+
+- Sécurité du site : [doc/securite.md](doc/securite.md)
+- Base de données (module L2) : [sql/migration_3.sql](sql/migration_3.sql), démonstration dans [sql/demo_bdd.sql](sql/demo_bdd.sql)
 
 ## Lancer en local
 
+Prérequis : PHP 8.2 avec `pdo_pgsql`, un serveur PostgreSQL, gcc et make.
+
 ```bash
-cp config.example.php config.php   # puis renseigner "secret"
+cp config.example.php config.php   # puis renseigner "secret" et "database_url"
+make -C moteur                     # compile le moteur de jeu (grilles des parties)
 php -S localhost:8000 -t public
+php outils/demo.php                # facultatif : compte « demo » et parties d'exemple
 ```
+
+Le schéma est créé et mis à jour automatiquement à la première requête (`src/schema.php`).
 
 En local (`mail_mode` = `log`), les e-mails sont écrits dans `data/mails.log`.
 
@@ -42,7 +51,8 @@ Seules `MAIL_FROM` (expéditeur validé chez Brevo) et `BREVO_API_KEY` sont à s
 
 ## Reste à faire pour la SAE
 
-- Profils public/privé : contrôle d'accès côté serveur à chaque requête (IDOR).
+- Profils public/privé (image, coordonnées).
+- Saisie des mots pendant une partie (validation par `moteur/bin/word_check`), salons d'attente, discussion.
 - Images de profil : vérification du type réel, taille limitée, ré-encodage, stockage hors de la racine web.
 - Discussion : protection XSS, anti-flood, signalement et modération.
 - Parties en temps réel : authentification des WebSockets, validation des mots et des scores côté serveur uniquement.

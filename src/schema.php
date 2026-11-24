@@ -1,15 +1,13 @@
 <?php
 declare(strict_types=1);
 
-// Création et mise à jour automatiques du schéma, pour SQLite (local) comme PostgreSQL (en ligne).
+// Création et mise à jour automatiques du schéma PostgreSQL, à la première connexion.
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function table_existe(PDO $pdo, string $table): bool
 {
-    $q = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql'
-        ? $pdo->prepare('SELECT to_regclass(?) IS NOT NULL')
-        : $pdo->prepare("SELECT COUNT(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = ?");
+    $q = $pdo->prepare('SELECT to_regclass(?) IS NOT NULL');
     $q->execute([$table]);
     return (bool) $q->fetchColumn();
 }
@@ -27,27 +25,24 @@ function migrer(PDO $pdo): void
     if (version_schema($pdo) >= SCHEMA_VERSION) {
         return;
     }
-    $pg = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql';
-
     // Verrou : deux requêtes simultanées après un déploiement ne migrent pas deux fois.
-    if ($pg) {
-        $pdo->beginTransaction();
-        $pdo->query('SELECT pg_advisory_xact_lock(4242)');
-    } else {
-        $pdo->exec('BEGIN IMMEDIATE');
-    }
+    // En PostgreSQL, le DDL est transactionnel : une migration échoue entièrement ou pas du tout.
+    $pdo->beginTransaction();
     try {
+        $pdo->query('SELECT pg_advisory_xact_lock(4242)');
         $version = version_schema($pdo);
-        if ($version < 1) {
-            $pdo->exec((string) file_get_contents(RACINE . ($pg ? '/sql/schema.pgsql.sql' : '/sql/schema.sql')));
+        $etapes = [1 => 'schema.pgsql.sql', 2 => 'migration_2.sql', 3 => 'migration_3.sql'];
+        foreach ($etapes as $numero => $fichier) {
+            if ($version < $numero) {
+                $pdo->exec((string) file_get_contents(RACINE . '/sql/' . $fichier));
+                if ($numero >= 2) {
+                    $pdo->exec('INSERT INTO schema_version (version) VALUES (' . $numero . ')');
+                }
+            }
         }
-        if ($version < 2) {
-            $pdo->exec((string) file_get_contents(RACINE . '/sql/migration_2.sql'));
-            $pdo->exec('INSERT INTO schema_version (version) VALUES (2)');
-        }
-        $pg ? $pdo->commit() : $pdo->exec('COMMIT');
+        $pdo->commit();
     } catch (Throwable $e) {
-        $pg ? $pdo->rollBack() : $pdo->exec('ROLLBACK');
+        $pdo->rollBack();
         throw $e;
     }
 }

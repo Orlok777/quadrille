@@ -124,7 +124,7 @@ function exporter_donnees(array $u, string $mdp): ?string
         'derniere_connexion_le'  => $date($u['last_login_at']),
         'double_authentification' => $u['totp_secret'] !== null,
         'codes_de_secours_restants' => (int) $q->fetchColumn(),
-        'parties'                => [],
+        'parties'                => parties_export((int) $u['id']),
         'non_inclus'             => 'Mot de passe et clé de double authentification : stockés uniquement sous forme hachée ou chiffrée.',
     ];
     journal_securite('donnees_exportees', $u['id']);

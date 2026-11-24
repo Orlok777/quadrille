@@ -8,7 +8,8 @@ return [
     // Si elle commence par https://, le cookie de session passe en Secure et HSTS est activé.
     'app_url'   => 'http://localhost:8000',
 
-    'db_path'   => __DIR__ . '/data/quadrille.sqlite',
+    // Base PostgreSQL (obligatoire). En ligne, elle est fournie par la variable DATABASE_URL.
+    'database_url' => 'postgresql://quadrille:quadrille@localhost:5432/quadrille',
 
     // 'mail' : envoi réel via mail() (en ligne).
     // 'log'  : écrit le message dans data/mails.log (développement uniquement).

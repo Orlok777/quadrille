@@ -79,16 +79,14 @@ function db(): PDO
         PDO::ATTR_TIMEOUT            => 5,
     ];
 
-    // En ligne : PostgreSQL, car le disque de l'hébergeur est effacé à chaque redémarrage.
-    if (conf('database_url') !== '') {
-        $url = parse_url(conf('database_url'));
-        $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $url['host'], $url['port'] ?? 5432, ltrim($url['path'], '/'));
-        $pdo = new PDO($dsn, rawurldecode($url['user']), rawurldecode($url['pass']), $options);
-    } else {
-        // En local : SQLite, sans aucune installation.
-        $pdo = new PDO('sqlite:' . conf('db_path'), null, null, $options);
-        $pdo->exec('PRAGMA foreign_keys = ON');
+    // PostgreSQL partout (exigé par le module L2) : en local comme en ligne.
+    // Format : postgresql://utilisateur:motdepasse@hote:port/base
+    $url = parse_url(conf('database_url'));
+    if (!$url || !isset($url['host'], $url['path'], $url['user'])) {
+        throw new RuntimeException('database_url manquante ou invalide (postgresql://utilisateur:motdepasse@hote:port/base).');
     }
+    $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $url['host'], $url['port'] ?? 5432, ltrim($url['path'], '/'));
+    $pdo = new PDO($dsn, rawurldecode($url['user']), rawurldecode($url['pass'] ?? ''), $options);
     migrer($pdo);
     return $pdo;
 }
@@ -98,4 +96,5 @@ require __DIR__ . '/securite.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/compte.php';
 require __DIR__ . '/mail.php';
+require __DIR__ . '/parties.php';
 require __DIR__ . '/vues.php';
