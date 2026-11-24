@@ -63,12 +63,11 @@ Grille *grille_depuis_args(int argc, char **argv)
 
 void grille_affiche(const Grille *g, FILE *f)
 {
-    for (int i = 0; i < g->lignes; i++) {
-        for (int j = 0; j < g->colonnes; j++) {
-            fprintf(f, j ? " %s" : "%s", g->cases[i * g->colonnes + j]);
-        }
-        fputc('\n', f);
+    /* Une seule ligne, cases lues ligne par ligne et séparées par des espaces (interface du moteur). */
+    for (int i = 0; i < g->lignes * g->colonnes; i++) {
+        fprintf(f, i ? " %s" : "%s", g->cases[i]);
     }
+    fputc('\n', f);
 }
 
 /* ---------- Fréquences et tirage ---------- */
@@ -151,14 +150,17 @@ void grille_aleatoire(Grille *g, const TableFrequences *t, uint64_t graine)
 
 /* ---------- Recherche d'un mot ---------- */
 
-static int chemin(const Grille *g, int i, const char *reste, char *utilise)
+/* Parcours en profondeur ; trace[] reçoit les indices des cases du chemin trouvé. */
+static int chemin(const Grille *g, int i, const char *reste, char *utilise, int *trace, int prof, int *longueur)
 {
     size_t n = strlen(g->cases[i]);
     if (utilise[i] || strncmp(g->cases[i], reste, n) != 0) {
         return 0;
     }
+    trace[prof] = i;
     reste += n;
     if (*reste == '\0') {
+        *longueur = prof + 1;
         return 1;
     }
     utilise[i] = 1;
@@ -167,7 +169,7 @@ static int chemin(const Grille *g, int i, const char *reste, char *utilise)
         for (int dy = -1; dy <= 1 && !trouve; dy++) {
             int nx = x + dx, ny = y + dy;
             if ((dx || dy) && nx >= 0 && ny >= 0 && nx < g->lignes && ny < g->colonnes) {
-                trouve = chemin(g, nx * g->colonnes + ny, reste, utilise);
+                trouve = chemin(g, nx * g->colonnes + ny, reste, utilise, trace, prof + 1, longueur);
             }
         }
     }
@@ -175,18 +177,24 @@ static int chemin(const Grille *g, int i, const char *reste, char *utilise)
     return trouve;
 }
 
-int grille_contient(const Grille *g, const char *mot)
+int grille_chemin(const Grille *g, const char *mot, int *trace, int *longueur)
 {
     char utilise[GRILLE_MAX * GRILLE_MAX] = {0};
     if (*mot == '\0') {
         return 0;
     }
     for (int i = 0; i < g->lignes * g->colonnes; i++) {
-        if (chemin(g, i, mot, utilise)) {
+        if (chemin(g, i, mot, utilise, trace, 0, longueur)) {
             return 1;
         }
     }
     return 0;
+}
+
+int grille_contient(const Grille *g, const char *mot)
+{
+    int trace[GRILLE_MAX * GRILLE_MAX], longueur;
+    return grille_chemin(g, mot, trace, &longueur);
 }
 
 /* ---------- Solveur : parcours commun de la grille et de l'arbre ---------- */

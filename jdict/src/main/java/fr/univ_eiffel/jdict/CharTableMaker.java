@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Table de fréquences des lettres (et digrammes comme QU) de la langue du dictionnaire :
  * <pre>java fr.univ_eiffel.jdict.CharTableMaker definitions > chartable.txt</pre>
- * Le format (« LETTRES poids » par ligne) est celui attendu par le moteur C (grid_build).
+ * Le format (« LETTRES entier » par ligne) est le fichier de fréquences du moteur C (grid_build).
  */
 public final class CharTableMaker {
 
@@ -23,7 +23,7 @@ public final class CharTableMaker {
         var table = new CharTable();
         try (Dictionary dictionary = Dictionary.open(DictionaryLocation.parse(args[0]))) {
             dictionary.forEachEntry(table::add);
-            Cli.OUT.print(table.format(dictionary.header().language()));
+            Cli.OUT.print(table.format());
         }
         Cli.OUT.flush();
     }

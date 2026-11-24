@@ -13,7 +13,7 @@ import java.util.Set;
  * java fr.univ_eiffel.jdict.NormalizedExtractor definitions > words.txt
  * java fr.univ_eiffel.jdict.NormalizedExtractor definitions "nom propre,adjectif" > words.txt
  * </pre>
- * Le fichier words.txt sert ensuite à construire l'arbre lexicographique du moteur C (dictionary_build).
+ * Le fichier words.txt sert ensuite à construire l'arbre lexicographique du moteur C (dictionnary_build).
  */
 public final class NormalizedExtractor {
 

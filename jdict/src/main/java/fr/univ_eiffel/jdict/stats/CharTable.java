@@ -4,7 +4,6 @@ import fr.univ_eiffel.jdict.model.Entry;
 import fr.univ_eiffel.jdict.text.WordNormalizer;
 import fr.univ_eiffel.jdict.wiki.WikiText;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -71,10 +70,13 @@ public final class CharTable {
         return frequencies;
     }
 
-    /** Format lu par le moteur C (grid_build) : « LETTRES poids » par ligne. */
-    public String format(String language) {
-        var out = new StringBuilder("# Table de fréquences (").append(language).append("), en pourcentage\n");
-        frequencies().forEach((k, v) -> out.append(k).append(' ').append(String.format(Locale.ROOT, "%.4f", v)).append('\n'));
+    /**
+     * Format du fichier de fréquences de l'interface du moteur (lu par grid_build) : une lettre ou paire
+     * de lettres par ligne, suivie d'une fréquence entière positive (ici pour 10 000, au moins 1).
+     */
+    public String format() {
+        var out = new StringBuilder();
+        frequencies().forEach((k, v) -> out.append(k).append(' ').append(Math.max(1, Math.round(v * 100))).append('\n'));
         return out.toString();
     }
 

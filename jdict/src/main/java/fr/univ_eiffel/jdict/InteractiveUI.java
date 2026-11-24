@@ -86,7 +86,7 @@ public final class InteractiveUI {
             case "chartable" -> requireDictionary(() -> {
                 var table = new CharTable();
                 dictionary.forEachEntry(table::add);
-                Cli.OUT.print(table.format(dictionary.header().language()));
+                Cli.OUT.print(table.format());
             });
             default -> requireDictionary(() -> {
                 Formats.Query query = Formats.parse(line);

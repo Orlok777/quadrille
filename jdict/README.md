@@ -42,8 +42,8 @@ java fr.univ_eiffel.jdict.InteractiveUI definitions    # mode interactif (help p
 Enchaînement avec le moteur C :
 
 ```sh
-../moteur/bin/dictionary_build words.txt fr.lex
-../moteur/bin/solve fr.lex 4 4 $(../moteur/bin/grid_build 4 4 chartable.txt)
+../moteur/bin/dictionnary_build words.txt fr.lex
+../moteur/bin/solve fr.lex 3 4 4 $(../moteur/bin/grid_build chartable.txt 4 4)
 ```
 
 ## Formats de fichiers
@@ -67,7 +67,7 @@ Enchaînement avec le moteur C :
 | `text` | Normalisation et ordre de tri | |
 | `store` | Écriture et lecture du dictionnaire et de l'index | `Codec` : un algorithme de compression, enregistré dans `Codecs` (aucun, zlib). `DictionaryLocation` isole les noms et formats de fichiers |
 | `format` | Présentation des résultats | `OutputFormat` : enregistré dans `Formats` (json, yaml), choisi par préfixe |
-| `stats` | Formes normalisées, table de fréquences (digrammes détectés automatiquement, ex. QU) | |
+| `stats` | Formes normalisées (A-Z seulement, format du dictionnaire du moteur), table de fréquences en entiers (digrammes détectés automatiquement, ex. QU) | |
 
 Les programmes (`DictionaryMaker`, `DictionarySearcher`…) ne font que lire les arguments et appeler ces paquets.
 `InteractiveUI` réutilise les mêmes classes.

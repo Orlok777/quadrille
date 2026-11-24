@@ -107,10 +107,11 @@ function lancer_moteur(string $programme, array $arguments): string
     return (string) $sortie;
 }
 
-/** Grille tirée par le moteur C (grid_build), en tenant compte des fréquences des lettres. */
+/** Grille tirée par le moteur C (grid_build), en tenant compte des fréquences des lettres du français. */
 function tirer_grille(int $lignes, int $colonnes): array
 {
-    $cases = preg_split('/\s+/', trim(lancer_moteur('grid_build', [$lignes, $colonnes])));
+    $frequences = RACINE . '/moteur/data/frequences_fr.txt';
+    $cases = preg_split('/\s+/', trim(lancer_moteur('grid_build', [$frequences, $lignes, $colonnes])));
     if (count($cases) !== $lignes * $colonnes) {
         throw new RuntimeException('Grille inattendue renvoyée par le moteur.');
     }

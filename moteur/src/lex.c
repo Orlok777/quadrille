@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char MAGIQUE[4] = {'L', 'E', 'X', '1'};
-
 static int32_t nouveau_noeud(Lex *lex, char c, int32_t frere)
 {
     if (lex->taille == lex->capacite) {
@@ -20,7 +18,10 @@ static int32_t nouveau_noeud(Lex *lex, char c, int32_t frere)
         lex->capacite = cap;
     }
     int32_t i = lex->taille++;
-    lex->noeuds[i] = (Noeud) {c, LEX_AUCUN, frere};
+    memset(&lex->noeuds[i], 0, sizeof lex->noeuds[i]);   /* octets de remplissage à zéro dans le fichier */
+    lex->noeuds[i].element = c;
+    lex->noeuds[i].fils = LEX_AUCUN;
+    lex->noeuds[i].frere = frere;
     return i;
 }
 
@@ -45,10 +46,10 @@ void lex_libere(Lex *lex)
 int32_t lex_fils(const Lex *lex, int32_t noeud, char c)
 {
     for (int32_t f = lex->noeuds[noeud].fils; f != LEX_AUCUN; f = lex->noeuds[f].frere) {
-        if (lex->noeuds[f].c == c) {
+        if (lex->noeuds[f].element == c) {
             return f;
         }
-        if (lex->noeuds[f].c > c) {
+        if (lex->noeuds[f].element > c) {
             break;   /* frères triés : inutile d'aller plus loin */
         }
     }
@@ -58,7 +59,7 @@ int32_t lex_fils(const Lex *lex, int32_t noeud, char c)
 int lex_est_mot(const Lex *lex, int32_t noeud)
 {
     int32_t f = lex->noeuds[noeud].fils;
-    return f != LEX_AUCUN && lex->noeuds[f].c == '\0';
+    return f != LEX_AUCUN && lex->noeuds[f].element == '\0';
 }
 
 /* Cherche le fils c de « parent », le crée à sa place (ordre trié) s'il manque. */
@@ -66,11 +67,11 @@ static int32_t fils_ou_cree(Lex *lex, int32_t parent, char c, int *cree)
 {
     int32_t prec = LEX_AUCUN;
     int32_t cour = lex->noeuds[parent].fils;
-    while (cour != LEX_AUCUN && lex->noeuds[cour].c < c) {
+    while (cour != LEX_AUCUN && lex->noeuds[cour].element < c) {
         prec = cour;
         cour = lex->noeuds[cour].frere;
     }
-    if (cour != LEX_AUCUN && lex->noeuds[cour].c == c) {
+    if (cour != LEX_AUCUN && lex->noeuds[cour].element == c) {
         *cree = 0;
         return cour;
     }
@@ -91,39 +92,30 @@ int lex_ajoute(Lex *lex, const char *mot)
     for (const char *p = mot;; p++) {
         n = fils_ou_cree(lex, n, *p, &cree);
         if (*p == '\0') {
+            lex->nb_mots += cree;
             return cree;
         }
     }
 }
 
-int lex_contient(const Lex *lex, const char *mot)
+int lex_cherche(const Lex *lex, const char *mot)
 {
+    if (*mot == '\0') {
+        return LEX_ABSENT;
+    }
     int32_t n = LEX_RACINE;
     for (const char *p = mot; *p; p++) {
         n = lex_fils(lex, n, *p);
         if (n == LEX_AUCUN) {
-            return 0;
+            return LEX_ABSENT;
         }
     }
-    return lex_est_mot(lex, n);
+    return lex_est_mot(lex, n) ? LEX_PRESENT : LEX_PREFIXE;
 }
 
-/* Entiers écrits octet par octet (grand-boutiste) : le fichier est portable d'une machine à l'autre. */
-static int ecrit_i32(FILE *f, int32_t v)
+int lex_contient(const Lex *lex, const char *mot)
 {
-    uint32_t u = (uint32_t) v;
-    unsigned char o[4] = {u >> 24, u >> 16, u >> 8, u};
-    return fwrite(o, 1, 4, f) == 4;
-}
-
-static int lit_i32(FILE *f, int32_t *v)
-{
-    unsigned char o[4];
-    if (fread(o, 1, 4, f) != 4) {
-        return 0;
-    }
-    *v = (int32_t) ((uint32_t) o[0] << 24 | (uint32_t) o[1] << 16 | (uint32_t) o[2] << 8 | o[3]);
-    return 1;
+    return lex_cherche(lex, mot) == LEX_PRESENT;
 }
 
 int lex_sauve(const Lex *lex, const char *chemin)
@@ -132,11 +124,14 @@ int lex_sauve(const Lex *lex, const char *chemin)
     if (!f) {
         return 0;
     }
-    int ok = fwrite(MAGIQUE, 1, 4, f) == 4 && ecrit_i32(f, lex->taille);
-    for (int32_t i = 0; ok && i < lex->taille; i++) {
-        const Noeud *n = &lex->noeuds[i];
-        ok = fputc(n->c, f) != EOF && ecrit_i32(f, n->fils) && ecrit_i32(f, n->frere);
-    }
+    EnteteLex entete = {
+        .taille_entete  = (int32_t) sizeof(EnteteLex),
+        .nb_mots        = lex->nb_mots,
+        .nb_cellules    = lex->taille,
+        .taille_cellule = (int32_t) sizeof(Noeud),
+    };
+    int ok = fwrite(&entete, sizeof entete, 1, f) == 1
+          && fwrite(lex->noeuds, sizeof(Noeud), (size_t) lex->taille, f) == (size_t) lex->taille;
     return fclose(f) == 0 && ok;
 }
 
@@ -146,26 +141,26 @@ Lex *lex_charge(const char *chemin)
     if (!f) {
         return NULL;
     }
-    char magique[4];
-    int32_t taille;
+    EnteteLex e;
     Lex *lex = NULL;
-    if (fread(magique, 1, 4, f) != 4 || memcmp(magique, MAGIQUE, 4) != 0 || !lit_i32(f, &taille) || taille < 1) {
+    /* L'en-tête peut être plus grand que le nôtre (champs ajoutés) : on saute le reste. */
+    if (fread(&e, sizeof e, 1, f) != 1 || e.taille_entete < (int32_t) sizeof e
+        || e.taille_cellule != (int32_t) sizeof(Noeud) || e.nb_cellules < 1 || e.nb_mots < 0
+        || fseek(f, e.taille_entete, SEEK_SET) != 0) {
         goto fin;
     }
     lex = calloc(1, sizeof *lex);
-    lex->noeuds = malloc((size_t) taille * sizeof *lex->noeuds);
-    if (!lex->noeuds) {
-        goto erreur;
+    lex->noeuds = malloc((size_t) e.nb_cellules * sizeof(Noeud));
+    if (!lex->noeuds || fread(lex->noeuds, sizeof(Noeud), (size_t) e.nb_cellules, f) != (size_t) e.nb_cellules) {
+        goto erreur;   /* fichier tronqué */
     }
-    lex->taille = lex->capacite = taille;
-    for (int32_t i = 0; i < taille; i++) {
-        Noeud *n = &lex->noeuds[i];
-        int c = fgetc(f);
-        if (c == EOF || !lit_i32(f, &n->fils) || !lit_i32(f, &n->frere)
-            || n->fils < LEX_AUCUN || n->fils >= taille || n->frere < LEX_AUCUN || n->frere >= taille) {
-            goto erreur;   /* fichier tronqué ou corrompu */
+    lex->taille = lex->capacite = e.nb_cellules;
+    lex->nb_mots = e.nb_mots;
+    for (int32_t i = 0; i < lex->taille; i++) {   /* indices hors du tableau : fichier corrompu */
+        const Noeud *n = &lex->noeuds[i];
+        if (n->fils < LEX_AUCUN || n->fils >= lex->taille || n->frere < LEX_AUCUN || n->frere >= lex->taille) {
+            goto erreur;
         }
-        n->c = (char) c;
     }
     goto fin;
 erreur:
@@ -176,7 +171,7 @@ fin:
     return lex;
 }
 
-Lex *lex_depuis_texte(const char *chemin, long *nb_mots)
+Lex *lex_depuis_texte(const char *chemin)
 {
     FILE *f = fopen(chemin, "r");
     if (!f) {
@@ -184,16 +179,15 @@ Lex *lex_depuis_texte(const char *chemin, long *nb_mots)
     }
     Lex *lex = lex_nouveau();
     char ligne[512], mot[MOT_MAX];
-    long n = 0;
     while (fgets(ligne, sizeof ligne, f)) {
-        ligne[strcspn(ligne, "\r\n")] = '\0';
-        if (normalise(ligne, mot, sizeof mot) && lex_ajoute(lex, mot)) {
-            n++;
+        if (ligne[0] == ' ') {
+            continue;   /* ligne ignorée */
+        }
+        ligne[strcspn(ligne, " \t\r\n")] = '\0';   /* le mot s'arrête au premier espace (commentaire) */
+        if (normalise(ligne, mot, sizeof mot)) {
+            lex_ajoute(lex, mot);
         }
     }
     fclose(f);
-    if (nb_mots) {
-        *nb_mots = n;
-    }
     return lex;
 }

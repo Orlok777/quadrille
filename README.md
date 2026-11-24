@@ -53,7 +53,7 @@ Seules `MAIL_FROM` (expéditeur validé chez Brevo) et `BREVO_API_KEY` sont à s
 ## Reste à faire pour la SAE
 
 - Profils public/privé (image, coordonnées).
-- Saisie des mots pendant une partie (validation par `moteur/bin/word_check`), salons d'attente, discussion.
+- Saisie des mots pendant une partie (validation par `moteur/bin/grid_path` et `dictionnary_lookup`), salons d'attente, discussion.
 - Images de profil : vérification du type réel, taille limitée, ré-encodage, stockage hors de la racine web.
 - Discussion : protection XSS, anti-flood, signalement et modération.
 - Parties en temps réel : authentification des WebSockets, validation des mots et des scores côté serveur uniquement.

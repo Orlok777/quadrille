@@ -1,23 +1,25 @@
-joie
-joies
-joue
-mie
-miel
-jai
-lien
-liens
-lie
-siens
-nie
-nies
-une
-chat
-chats
-cheval
-chevaux
+JOIE
+JOIES
+JOUE
+MIE
+MIEL
+JAI
+LIEN
+LIENS
+LIE
+SIENS
+NIE
+NIES
+UNE
+OUI
+VIE
+VIRE
+BONJOUR (commentaire après le mot)
+CHAT ## un autre commentaire
+CHATS
+ IGNORE cette ligne commence par un espace
+quai
 élève
-garçon
 cœur
 aujourd'hui
 porte-monnaie
-quai
