@@ -1,0 +1,9 @@
+target/
+.classpath
+.project
+.settings/
+*.dict
+*.index
+*.bz2
+words.txt
+chartable.txt

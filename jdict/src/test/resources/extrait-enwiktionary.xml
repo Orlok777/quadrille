@@ -1,0 +1,42 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11" xml:lang="en">
+  <page>
+    <title>beach</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">==English==
+===Etymology===
+From Old English.
+
+===Noun===
+{{en-noun}}
+# The [[shore]] of a body of water, especially when [[sandy]].
+#: {{ux|en|We went to the beach.}}
+# A [[sandy]] shore popular for recreation.
+
+===Verb===
+# To [[haul]] a boat onto a beach.
+
+====Synonyms====
+* [[shore]]
+
+==French==
+===Noun===
+# Not English: must be ignored.
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>run</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">==English==
+===Etymology 1===
+====Verb====
+# To move swiftly.
+===Etymology 2===
+====Noun====
+# Act of running.
+</text>
+    </revision>
+  </page>
+</mediawiki>

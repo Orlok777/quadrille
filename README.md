@@ -3,6 +3,7 @@
 Plate-forme de Boggle en ligne (SAE S3). PHP 8.2 sans dépendance ni JavaScript, base PostgreSQL,
 moteur de jeu en C ([moteur/](moteur/README.md)).
 
+- Dictionnaire Wiktionary en Java (module L1 bis) : [jdict/](jdict/README.md)
 - Sécurité du site : [doc/securite.md](doc/securite.md)
 - Base de données (module L2) : [sql/migration_3.sql](sql/migration_3.sql), démonstration dans [sql/demo_bdd.sql](sql/demo_bdd.sql)
 

@@ -1,0 +1,109 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" version="0.11" xml:lang="fr">
+  <siteinfo>
+    <sitename>Wiktionnaire</sitename>
+  </siteinfo>
+  <page>
+    <title>plage</title>
+    <ns>0</ns>
+    <id>1</id>
+    <revision>
+      <text bytes="1" xml:space="preserve">{{voir|Plage}}
+== {{langue|fr}} ==
+=== {{S|étymologie}} ===
+: Du latin ''plaga''.
+# Ceci n'est pas une définition (section étymologie).
+
+=== {{S|nom|fr}} ===
+{{fr-rég|plaʒ}}
+'''plage''' {{pron|plaʒ|fr}} {{f}}
+# [[étendue|Étendue]] de [[sable]] ou de [[galet]]s bordant un plan d’[[eau]].
+#* ''Nous avons passé la journée à la plage.''
+# {{lexique|mathématiques|fr}} Partie d’un tout constituant un sous-ensemble cohérent et contigu.
+#: Remarque à ignorer.
+## {{lexique|informatique|fr}} {{ellipse|fr}} Groupe d’[[adresse IP|adresses IP]] consécutives.
+
+==== {{S|synonymes}} ====
+* [[grève]]
+
+=== {{S|verbe|fr|flexion}} ===
+# ''Première personne du singulier de l’indicatif présent de'' [[plager]].
+# ''Troisième personne du singulier de l’indicatif présent de'' [[plager]].
+
+== {{langue|de}} ==
+=== {{S|verbe|de|flexion}} ===
+# ''Deuxième personne du singulier de'' [[plagen]].
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>congrès</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|nom|fr}} ===
+# [[assemblée|Assemblée]] de plusieurs [[représentant]]s de [[différent]]es [[puissance]]s.
+# Assemblée de plusieurs personnes qui se [[réunir|réunissent]] pour se [[communiquer]] les [[résultat]]s de [[leur]]s [[étude]]s.
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>Congrès</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|nom propre|fr}} ===
+# {{lexique|politique|fr}} {{France|fr}} [[réunion|Réunion]] des [[député]]s et [[sénateur]]s [[français]] en [[parlement]].
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>congres</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|nom|fr|flexion}} ===
+# ''Pluriel de'' [[congre#fr|congre]].
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>quai</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|nom|fr}} ===
+# Levée faite le long d’une rivière pour retenir les eaux et faciliter le chargement des quelques navires qui y accostent.
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>beau</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|adj|fr}} ===
+# Qui a de la beauté, qui plaît à l’œil.
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>Discussion:plage</title>
+    <ns>1</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|fr}} ==
+=== {{S|nom|fr}} ===
+# Page de discussion : ne doit pas apparaître.
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>Haus</title>
+    <ns>0</ns>
+    <revision>
+      <text xml:space="preserve">== {{langue|de}} ==
+=== {{S|nom|de}} ===
+# [[maison|Maison]].
+</text>
+    </revision>
+  </page>
+</mediawiki>
